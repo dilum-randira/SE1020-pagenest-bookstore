@@ -1,0 +1,8 @@
+<nav xmlns:th="http://www.thymeleaf.org" th:fragment="navigation(active)" class="admin-nav" aria-label="Admin preview navigation">
+    <a class="admin-brand" th:href="@{/preview/admin}"><span class="brand-mark" aria-hidden="true">✳</span> PageNest <span class="brand-admin">Admin</span></a>
+    <p class="nav-caption">WORKSPACE</p>
+    <a th:href="@{/preview/admin}" th:classappend="${active == 'dashboard'} ? 'is-current'">Overview</a>
+    <a th:href="@{/preview/admin/books}" th:classappend="${active == 'books'} ? 'is-current'">Manage books</a>
+    <a th:href="@{/preview/admin/books/new}" th:classappend="${active == 'new'} ? 'is-current'">Add book</a>
+    <div class="nav-bottom"><span class="preview-chip">DEVELOPMENT PREVIEW</span><p>Read-only demo. No changes are saved.</p><a th:href="@{/}">View public site <span aria-hidden="true">↗</span></a></div>
+</nav>

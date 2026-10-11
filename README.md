@@ -52,7 +52,8 @@ Then open <http://localhost:8080> in a web browser.
 - Lists eight sample books at `/books`, with title/author search, category filtering, and name/price sorting.
 - Shows book details at `/books/{id}` and a friendly 404 page for unknown IDs.
 - Uses one in-memory sample collection in `BookService` for the homepage, catalog, and detail pages.
+- Provides a development-only admin preview at `/preview/admin` with inventory summary, searchable book table, add/edit form previews, and a non-destructive delete dialog.
 
-The book data, stock numbers, and LKR prices are examples for this project, not live store inventory. Text-file storage and admin editing are planned for later milestones.
+The book data, stock numbers, and LKR prices are examples for this project, not live store inventory. Admin preview routes are public and read-only: they have no save/delete endpoints or persistence. **Remove or secure `/preview/admin/**` before final delivery.** Authentication, protected CRUD, and text-file storage are planned for later milestones.
 
 Run the tests with `./mvnw test` on macOS/Linux or `.\mvnw.cmd test` on Windows.
