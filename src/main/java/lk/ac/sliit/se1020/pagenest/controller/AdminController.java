@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.Locale;
 
 @Controller
-@RequestMapping("/preview/admin")
-public class AdminPreviewController {
+@RequestMapping("/admin")
+public class AdminController {
 
     private static final int LOW_STOCK_THRESHOLD = 5;
     private final BookService bookService;
 
-    public AdminPreviewController(BookService bookService) {
+    public AdminController(BookService bookService) {
         this.bookService = bookService;
     }
 

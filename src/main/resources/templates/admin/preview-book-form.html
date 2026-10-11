@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${editing} ? 'Edit Book | PageNest Admin Preview' : 'Add Book | PageNest Admin Preview'">Book Form | PageNest</title>
+    <title th:text="${editing} ? 'Edit Book | PageNest Admin' : 'Add Book | PageNest Admin'">Book Form | PageNest</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}" href="/css/admin.css">
     <script defer th:src="@{/js/admin.js}" src="/js/admin.js"></script>
 </head>
@@ -11,11 +11,11 @@
 <div class="admin-shell">
     <div th:replace="~{admin/preview-nav :: navigation(${editing} ? 'books' : 'new')}"></div>
     <main id="main-content" class="admin-main">
-        <div class="preview-banner" role="note"><strong>Development preview</strong><span>Explore the form layout. Saving is disabled until protected CRUD is implemented.</span></div>
-        <div class="breadcrumb"><a th:href="@{/preview/admin/books}">Manage books</a><span aria-hidden="true">/</span><span th:text="${editing} ? 'Edit book' : 'Add book'">Add book</span></div>
-        <header class="page-header form-page-header"><div><p class="eyebrow">INVENTORY / BOOK DETAILS</p><h1 th:text="${editing} ? 'Edit book' : 'Add a new book'">Add a new book</h1><p class="lede" th:text="${editing} ? |Previewing the details for ${book.title}. Nothing you type here will be saved.| : 'Complete the book details below. This is a form preview only.'">Form preview.</p></div></header>
+        <div class="preview-banner" role="note"><strong>Read-only form</strong><span>Saving is disabled until book CRUD is implemented.</span></div>
+        <div class="breadcrumb"><a th:href="@{/admin/books}">Manage books</a><span aria-hidden="true">/</span><span th:text="${editing} ? 'Edit book' : 'Add book'">Add book</span></div>
+        <header class="page-header form-page-header"><div><p class="eyebrow">INVENTORY / BOOK DETAILS</p><h1 th:text="${editing} ? 'Edit book' : 'Add a new book'">Add a new book</h1><p class="lede" th:text="${editing} ? |Reviewing the details for ${book.title}. Nothing you type here will be saved.| : 'Explore the book details below. Saving is not available yet.'">Form preview.</p></div></header>
         <form class="book-form panel" novalidate aria-describedby="form-notice">
-            <div class="panel-heading"><div><p class="eyebrow">BOOK INFORMATION</p><h2 th:text="${editing} ? 'Review book details' : 'Book details'">Book details</h2><p>Fields marked <span class="required">*</span> are required.</p></div><span class="sample-tag">PREVIEW ONLY</span></div>
+            <div class="panel-heading"><div><p class="eyebrow">BOOK INFORMATION</p><h2 th:text="${editing} ? 'Review book details' : 'Book details'">Book details</h2><p>Fields marked <span class="required">*</span> are required.</p></div><span class="sample-tag">READ ONLY</span></div>
             <div class="form-grid">
                 <div class="field"><label for="isbn">ISBN <span class="required">*</span></label><input id="isbn" name="isbn" type="text" inputmode="numeric" pattern="[0-9]{10}|[0-9]{13}" maxlength="13" required th:value="${book.isbn}" placeholder="10 or 13 digits" aria-describedby="isbn-help isbn-error"><small id="isbn-help">Enter a 10- or 13-digit ISBN.</small><span class="field-error" id="isbn-error" aria-live="polite"></span></div>
                 <div class="field"><label for="title">Title <span class="required">*</span></label><input id="title" name="title" type="text" maxlength="150" required th:value="${book.title}" placeholder="Book title" aria-describedby="title-error"><span class="field-error" id="title-error" aria-live="polite"></span></div>
@@ -26,10 +26,10 @@
                 <div class="field field-wide"><label for="description">Description <span class="required">*</span></label><textarea id="description" name="description" rows="5" maxlength="1000" required placeholder="A short description of the book" aria-describedby="description-error" th:text="${book.description}"></textarea><span class="field-error" id="description-error" aria-live="polite"></span></div>
                 <div class="field field-wide"><label for="cover-url">Cover image URL <span class="required">*</span></label><input id="cover-url" name="coverUrl" type="url" required th:value="${book.coverUrl}" placeholder="https://example.com/cover.jpg" aria-describedby="cover-url-help cover-url-error"><small id="cover-url-help">Use a direct HTTPS image link.</small><span class="field-error" id="cover-url-error" aria-live="polite"></span></div>
             </div>
-            <div class="form-actions"><a class="button button-quiet" th:href="@{/preview/admin/books}">Cancel</a><button class="button button-primary" type="button" disabled>Save book — unavailable</button></div>
-            <p class="form-notice" id="form-notice">Saving will be enabled after authentication and CRUD integration. Changes in this preview are not stored.</p>
+            <div class="form-actions"><a class="button button-quiet" th:href="@{/admin/books}">Cancel</a><button class="button button-primary" type="button" disabled>Save book — unavailable</button></div>
+            <p class="form-notice" id="form-notice">Saving will be enabled after CRUD integration. Changes on this page are not stored.</p>
         </form>
-        <p class="end-note">Preview only · No server-side form submission or file persistence is available.</p>
+        <p class="end-note">No server-side form submission or file persistence is available yet.</p>
     </main>
 </div>
 </body>

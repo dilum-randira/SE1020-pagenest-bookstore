@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Manage Books | PageNest Admin Preview</title>
+    <title>Manage Books | PageNest Admin</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}" href="/css/admin.css">
     <script defer th:src="@{/js/admin.js}" src="/js/admin.js"></script>
 </head>
@@ -11,28 +11,28 @@
 <div class="admin-shell">
     <div th:replace="~{admin/preview-nav :: navigation('books')}"></div>
     <main id="main-content" class="admin-main">
-        <div class="preview-banner" role="note"><strong>Development preview</strong><span>View and explore sample inventory. Edit and delete do not change book data.</span></div>
-        <header class="page-header"><div><p class="eyebrow">INVENTORY / MANAGE BOOKS</p><h1>Manage books</h1><p class="lede">Find a title and review its stock at a glance.</p></div><a class="button button-primary" th:href="@{/preview/admin/books/new}">+ Add book</a></header>
+        <div class="preview-banner" role="note"><strong>Read-only inventory</strong><span>Book edits and deletion remain unavailable until protected CRUD is implemented.</span></div>
+        <header class="page-header"><div><p class="eyebrow">INVENTORY / MANAGE BOOKS</p><h1>Manage books</h1><p class="lede">Find a title and review its stock at a glance.</p></div><a class="button button-primary" th:href="@{/admin/books/new}">+ Add book</a></header>
         <section class="panel" aria-labelledby="inventory-title">
             <div class="panel-heading"><div><p class="eyebrow">THE COLLECTION</p><h2 id="inventory-title">Book inventory</h2><p th:text="|${#lists.size(books)} ${#lists.size(books) == 1 ? 'book' : 'books'} shown|">8 books shown</p></div><span class="sample-tag">SAMPLE DATA</span></div>
-            <form class="inventory-filters" method="get" th:action="@{/preview/admin/books}" action="/preview/admin/books" role="search">
+            <form class="inventory-filters" method="get" th:action="@{/admin/books}" action="/admin/books" role="search">
                 <div class="field"><label for="inventory-search">Search books</label><input id="inventory-search" type="search" name="q" placeholder="Title, author or ISBN" th:value="${query}"></div>
                 <div class="field"><label for="inventory-category">Category</label><select id="inventory-category" name="category"><option value="">All categories</option><option th:each="category : ${categories}" th:value="${category}" th:text="${category}" th:selected="${category == selectedCategory}">Category</option></select></div>
-                <button class="button button-primary" type="submit">Apply filters</button><a class="button button-quiet" th:href="@{/preview/admin/books}">Clear</a>
+                <button class="button button-primary" type="submit">Apply filters</button><a class="button button-quiet" th:href="@{/admin/books}">Clear</a>
             </form>
-            <div class="empty-state" th:if="${#lists.isEmpty(books)}"><h3>No matching books</h3><p>Try a different title, author, ISBN, or category.</p><a class="text-link" th:href="@{/preview/admin/books}">Show all books</a></div>
+            <div class="empty-state" th:if="${#lists.isEmpty(books)}"><h3>No matching books</h3><p>Try a different title, author, ISBN, or category.</p><a class="text-link" th:href="@{/admin/books}">Show all books</a></div>
             <div class="table-wrap" th:unless="${#lists.isEmpty(books)}"><table class="inventory-table"><caption class="sr-only">Sample PageNest book inventory</caption><thead><tr><th scope="col">Book</th><th scope="col">ISBN</th><th scope="col">Category</th><th scope="col">Price</th><th scope="col">Stock</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>
                 <tr th:each="book : ${books}">
                     <td data-label="Book"><div class="table-book"><img th:src="${book.coverUrl}" src="" th:alt="|Cover of ${book.title}|" alt="Book cover" width="42" height="58"><div><strong th:text="${book.title}">Book title</strong><span th:text="${book.author}">Author</span></div></div></td>
                     <td data-label="ISBN" class="isbn" th:text="${book.isbn}">ISBN</td><td data-label="Category" th:text="${book.category}">Category</td><td data-label="Price" class="price" th:text="|LKR ${#numbers.formatDecimal(book.price, 1, 'COMMA', 0, 'POINT')}|">LKR 0</td><td data-label="Stock" th:text="${book.stock}">0</td>
                     <td data-label="Status"><span class="stock-badge" th:classappend="${book.stock == 0 ? 'out' : (book.stock <= 5 ? 'low' : 'available')}" th:text="${book.stock == 0 ? 'Out of stock' : (book.stock <= 5 ? 'Low stock' : 'Available')}">Available</span></td>
-                    <td data-label="Actions"><div class="row-actions"><a th:href="@{/books/{id}(id=${book.id})}" th:aria-label="|View ${book.title} on the public site|">View</a><a th:href="@{/preview/admin/books/{id}/edit(id=${book.id})}" th:aria-label="|Preview edit ${book.title}|">Edit</a><button type="button" class="delete-trigger" th:attr="data-book-title=${book.title}" th:aria-label="|Preview delete ${book.title}|">Delete</button></div></td>
+                    <td data-label="Actions"><div class="row-actions"><a th:href="@{/books/{id}(id=${book.id})}" th:aria-label="|View ${book.title} on the public site|">View</a><a th:href="@{/admin/books/{id}/edit(id=${book.id})}" th:aria-label="|Preview edit ${book.title}|">Edit</a><button type="button" class="delete-trigger" th:attr="data-book-title=${book.title}" th:aria-label="|Preview delete ${book.title}|">Delete</button></div></td>
                 </tr>
             </tbody></table></div>
         </section>
-        <p class="end-note">Preview only · No changes are saved, and this area is not secured.</p>
+        <p class="end-note">Signed-in admins only · Book changes are not yet available.</p>
     </main>
 </div>
-<dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description"><div class="dialog-top"><span class="dialog-symbol" aria-hidden="true">!</span><button type="button" class="dialog-close" aria-label="Close confirmation">×</button></div><h2 id="delete-title">Delete book?</h2><p id="delete-description">This would remove <strong id="delete-book-title"></strong> from inventory once protected CRUD is available. No book will be deleted in this preview.</p><div class="dialog-actions"><button type="button" class="button button-quiet dialog-cancel">Cancel</button><button type="button" class="button button-danger" disabled title="Deleting will be enabled after protected CRUD integration">Confirm delete — unavailable</button></div><p class="dialog-note">Deletion is disabled in this development preview.</p></dialog>
+<dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description"><div class="dialog-top"><span class="dialog-symbol" aria-hidden="true">!</span><button type="button" class="dialog-close" aria-label="Close confirmation">×</button></div><h2 id="delete-title">Delete book?</h2><p id="delete-description">This would remove <strong id="delete-book-title"></strong> from inventory once CRUD is available. No book will be deleted now.</p><div class="dialog-actions"><button type="button" class="button button-quiet dialog-cancel">Cancel</button><button type="button" class="button button-danger" disabled title="Deleting will be enabled after CRUD integration">Confirm delete — unavailable</button></div><p class="dialog-note">Deletion is disabled until book management is implemented.</p></dialog>
 </body>
 </html>

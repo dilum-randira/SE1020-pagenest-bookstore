@@ -23,6 +23,10 @@ button { cursor: pointer; }
 .nav-bottom p { margin: 13px 0 17px; color: var(--muted); font-size: 12px; }
 .nav-bottom a { color: var(--green); font-size: 12px; font-weight: 700; text-decoration: none; }
 .nav-bottom a:hover, .text-link:hover, .row-actions a:hover { text-decoration: underline; }
+.admin-logout { margin-top: 15px; }
+.admin-logout button { padding: 5px 0; border: 0; background: none; color: var(--green); font-size: 12px; font-weight: 700; cursor: pointer; }
+.admin-logout button:hover { text-decoration: underline; }
+.mobile-logout { display: none; }
 .admin-main { width: min(100%, 1460px); min-width: 0; margin-inline: auto; padding: 31px clamp(20px, 4vw, 62px) 50px; }
 .preview-banner { display: flex; gap: 14px; padding: 11px 15px; border: 1px solid #d5dfd3; background: #eef4eb; color: #3e5845; font-size: 12px; }
 .preview-banner strong { flex: none; color: var(--green); }
@@ -123,6 +127,8 @@ dialog p { color: var(--muted); font-size: 13px; }
     .nav-caption, .nav-bottom { display: none; }
     .admin-nav > a:not(.admin-brand) { min-height: 38px; padding: 7px 11px; border-left: 0; border-bottom: 2px solid transparent; font-size: 12px; }
     .admin-nav > a.is-current { border-bottom-color: var(--green); }
+    .mobile-logout { display: block; margin-left: auto; }
+    .mobile-logout button { min-height: 38px; padding: 7px 11px; border: 0; background: none; color: var(--green); font-size: 12px; font-weight: 700; }
     .admin-main { padding: 24px 24px 45px; }
 }
 @media (max-width: 680px) {

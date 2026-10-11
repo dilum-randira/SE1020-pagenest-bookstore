@@ -1,7 +1,7 @@
 package lk.ac.sliit.se1020.pagenest;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lk.ac.sliit.se1020.pagenest.controller.AdminPreviewController;
+import lk.ac.sliit.se1020.pagenest.controller.AdminController;
 import lk.ac.sliit.se1020.pagenest.model.Book;
 import lk.ac.sliit.se1020.pagenest.service.BookService;
 import org.junit.jupiter.api.Test;
@@ -14,10 +14,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class AdminPreviewControllerTests {
+class AdminControllerTests {
 
     private final BookService bookService = new BookService();
-    private final AdminPreviewController controller = new AdminPreviewController(bookService);
+    private final AdminController controller = new AdminController(bookService);
 
     @Test
     void dashboardUsesTheSharedSampleCollection() {

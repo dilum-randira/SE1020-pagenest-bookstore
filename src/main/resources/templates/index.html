@@ -19,7 +19,9 @@
                 <a href="#home" aria-current="page">Home</a>
                 <a th:href="@{/books}" href="/books">Discover Books</a>
                 <a href="#about">About</a>
-                <span class="coming-soon" aria-label="Login is coming soon">Login <small>Coming soon</small></span>
+                <a th:if="${adminUser}" th:href="@{/admin}" href="/admin">Admin Dashboard</a>
+                <a th:unless="${signedIn}" th:href="@{/login}" href="/login">Login</a>
+                <form th:if="${signedIn}" class="logout-form" th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
             </nav>
         </div>
     </header>

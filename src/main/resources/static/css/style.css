@@ -37,6 +37,9 @@ h1, h2 { font-family: var(--serif); font-weight: normal; letter-spacing: -.055em
 .primary-navigation a, .coming-soon { font-size: 13px; font-weight: 650; text-decoration: none; }
 .primary-navigation a { padding-block: 12px; }
 .primary-navigation a:hover { color: #2b7455; }
+.logout-form { margin: 0; }
+.logout-form button { padding: 12px 0; border: 0; background: none; color: var(--green); font-size: 13px; font-weight: 650; cursor: pointer; }
+.logout-form button:hover { color: #2b7455; text-decoration: underline; }
 .coming-soon { display: inline-flex; align-items: center; gap: 8px; padding-left: clamp(20px, 3vw, 42px); border-left: 1px solid var(--line); color: #7a8178; }
 .coming-soon small { padding: 3px 7px; border: 1px solid #cbd3ca; border-radius: 16px; font-size: 10px; white-space: nowrap; }
 .menu-toggle { display: none; }
@@ -233,6 +236,7 @@ h2 { margin-bottom: 0; font-size: clamp(38px, 4vw, 54px); line-height: 1.15; }
     .primary-navigation { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0; padding: 10px 17px 17px; border-bottom: 1px solid var(--line); background: var(--paper); box-shadow: 0 12px 20px rgba(34, 48, 36, .09); }
     .primary-navigation.is-open { display: flex; }
     .primary-navigation a { display: flex; min-height: 46px; align-items: center; border-bottom: 1px solid var(--line); }
+    .logout-form button { width: 100%; min-height: 46px; border-bottom: 1px solid var(--line); text-align: left; }
     .coming-soon { min-height: 46px; padding: 0; border: 0; }
     .coming-soon small { display: inline-block; }
     .hero-grid { display: flex; flex-direction: column; align-items: stretch; gap: 30px; padding-block: 50px 43px; }

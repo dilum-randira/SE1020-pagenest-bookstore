@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#193d32">
+    <title>Sign in | PageNest</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}" href="/css/auth.css">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="auth-header"><a class="brand" th:href="@{/}" href="/" aria-label="PageNest homepage"><span class="brand-mark" aria-hidden="true">✳</span>PageNest<span class="brand-dot">.</span></a><a class="back-link" th:href="@{/}" href="/">← Back to bookstore</a></header>
+<main id="main-content" class="auth-main">
+    <div class="auth-intro"><p class="eyebrow">A PLACE FOR EVERY READER</p><h1>Welcome back<span>.</span></h1><p>Sign in to continue your PageNest journey. Your books are waiting.</p><div class="intro-rule"></div><p class="intro-note">Stories to discover. Ideas to keep.</p></div>
+    <section class="auth-card" aria-labelledby="login-heading"><p class="eyebrow">YOUR ACCOUNT</p><h2 id="login-heading">Sign in</h2><p class="card-subtitle">Enter your PageNest username and password.</p>
+        <div class="form-message error" role="alert" th:if="${param.error}">The username or password was incorrect. Please try again.</div>
+        <div class="form-message success" role="status" th:if="${param.logout}">You have signed out successfully.</div>
+        <form method="post" th:action="@{/login}" action="/login">
+            <div class="form-field"><label for="username">Username</label><input id="username" name="username" type="text" autocomplete="username" required autofocus placeholder="Enter your username"></div>
+            <div class="form-field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password"></div>
+            <button class="sign-in-button" type="submit">Sign in <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="form-footnote">Access is available to the two configured project accounts. Ask the project owner for your credentials.</p>
+    </section>
+</main>
+<footer class="auth-footer"><span>© 2026 PageNest · An SE1020 project</span><span>Books worth discovering.</span></footer>
+</body>
+</html>
