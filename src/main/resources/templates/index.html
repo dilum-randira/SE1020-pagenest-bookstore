@@ -17,7 +17,7 @@
             <button class="menu-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Open menu"><span></span><span></span><span></span></button>
             <nav class="primary-navigation" id="primary-navigation" aria-label="Primary navigation">
                 <a href="#home" aria-current="page">Home</a>
-                <a href="#featured">Discover Books</a>
+                <a th:href="@{/books}" href="/books">Discover Books</a>
                 <a href="#about">About</a>
                 <span class="coming-soon" aria-label="Login is coming soon">Login <small>Coming soon</small></span>
             </nav>
@@ -31,14 +31,14 @@
                     <p class="eyebrow">THE READER'S CORNER</p>
                     <h1 id="hero-title">A good book changes <em>everything.</em></h1>
                     <p class="hero-description">Stories to get lost in. Ideas to grow with. Find your next favorite read in a place made for curious minds.</p>
-                    <a class="primary-cta" href="#featured">Explore books <span aria-hidden="true">↗</span></a>
+                    <a class="primary-cta" th:href="@{/books}" href="/books">Explore books <span aria-hidden="true">↗</span></a>
                     <p class="hero-tagline">Books worth discovering.</p>
                 </div>
                 <div class="hero-art" role="group" aria-label="A selection of books from the PageNest preview collection">
                     <span class="hero-art-label">A LITTLE SOMETHING FOR EVERY READER</span>
-                    <div class="hero-book hero-book-one"><span aria-hidden="true">The Night Circus</span><img data-cover-image src="https://covers.openlibrary.org/b/id/8773134-M.jpg?default=false" alt="Cover of The Night Circus by Erin Morgenstern" width="180" height="270"></div>
-                    <div class="hero-book hero-book-two"><span aria-hidden="true">Pachinko</span><img data-cover-image src="https://covers.openlibrary.org/b/id/8044605-M.jpg?default=false" alt="Cover of Pachinko by Min Jin Lee" width="220" height="330"></div>
-                    <div class="hero-book hero-book-three"><span aria-hidden="true">A Brief History of Time</span><img data-cover-image src="https://covers.openlibrary.org/b/id/10432365-M.jpg?default=false" alt="Cover of A Brief History of Time by Stephen Hawking" width="180" height="270"></div>
+                    <div class="hero-book hero-book-one" th:with="book=${books[0]}"><span aria-hidden="true" th:text="${book.title}">Book cover</span><img data-cover-image th:src="${book.coverUrl}" th:alt="|Cover of ${book.title} by ${book.author}|" width="180" height="270"></div>
+                    <div class="hero-book hero-book-two" th:with="book=${books[1]}"><span aria-hidden="true" th:text="${book.title}">Book cover</span><img data-cover-image th:src="${book.coverUrl}" th:alt="|Cover of ${book.title} by ${book.author}|" width="220" height="330"></div>
+                    <div class="hero-book hero-book-three" th:with="book=${books[2]}"><span aria-hidden="true" th:text="${book.title}">Book cover</span><img data-cover-image th:src="${book.coverUrl}" th:alt="|Cover of ${book.title} by ${book.author}|" width="180" height="270"></div>
                     <span class="hero-art-footer">TURN THE PAGE · FIND YOUR NEXT STORY</span>
                 </div>
             </div>
@@ -51,12 +51,7 @@
                 <div class="section-heading"><div><p class="eyebrow">FIND YOUR SHELF</p><h2 id="categories-title">Read what moves you.</h2></div><p>From page-turning stories to ideas that stay with you, start with a subject you love.</p></div>
                 <div class="category-list" role="group" aria-label="Filter preview books by category">
                     <button class="category-button is-active" type="button" data-category="all" aria-pressed="true">All books <span aria-hidden="true">↗</span></button>
-                    <button class="category-button" type="button" data-category="fiction" aria-pressed="false">Fiction <span aria-hidden="true">↗</span></button>
-                    <button class="category-button" type="button" data-category="technology" aria-pressed="false">Technology <span aria-hidden="true">↗</span></button>
-                    <button class="category-button" type="button" data-category="business" aria-pressed="false">Business <span aria-hidden="true">↗</span></button>
-                    <button class="category-button" type="button" data-category="personal-development" aria-pressed="false">Personal Development <span aria-hidden="true">↗</span></button>
-                    <button class="category-button" type="button" data-category="science" aria-pressed="false">Science <span aria-hidden="true">↗</span></button>
-                    <button class="category-button" type="button" data-category="education" aria-pressed="false">Education <span aria-hidden="true">↗</span></button>
+                    <button class="category-button" type="button" th:each="category : ${categories}" th:attr="data-category=${#strings.toLowerCase(#strings.replace(category, ' ', '-'))}" aria-pressed="false"><span th:text="${category}">Category</span> <span aria-hidden="true">↗</span></button>
                 </div>
             </div>
         </section>
@@ -64,24 +59,28 @@
         <section class="featured section-space" id="featured" aria-labelledby="featured-title">
             <div class="container">
                 <div class="section-heading"><div><p class="eyebrow">THE PAGENEST EDIT</p><h2 id="featured-title">Books to begin with.</h2></div><p>A small preview collection. Titles and LKR prices are sample content for this project.</p></div>
-                <p class="results-note" id="results-note" role="status" aria-live="polite">Showing all 8 preview books</p>
-                <!-- Demo books are grouped here until a later milestone provides backend data. -->
+                <p class="results-note" id="results-note" role="status" aria-live="polite" th:text="|Showing all ${#lists.size(books)} preview books|">Showing preview books</p>
                 <div class="book-grid">
-                    <article class="book-card" data-book-category="fiction"><div class="book-cover cover-one"><span class="cover-fallback">The Night Circus</span><img data-cover-image src="https://covers.openlibrary.org/b/id/8773134-M.jpg?default=false" alt="Cover of The Night Circus by Erin Morgenstern" loading="lazy" width="240" height="360"></div><div class="book-info"><span class="book-genre">Fiction</span><h3>The Night Circus</h3><p>Erin Morgenstern</p><strong>LKR 3,250</strong></div></article>
-                    <article class="book-card" data-book-category="fiction"><div class="book-cover cover-two"><span class="cover-fallback">Pachinko</span><img data-cover-image src="https://covers.openlibrary.org/b/id/8044605-M.jpg?default=false" alt="Cover of Pachinko by Min Jin Lee" loading="lazy" width="240" height="360"></div><div class="book-info"><span class="book-genre">Fiction</span><h3>Pachinko</h3><p>Min Jin Lee</p><strong>LKR 3,850</strong></div></article>
-                    <article class="book-card" data-book-category="technology"><div class="book-cover cover-three"><span class="cover-fallback">Clean Code</span><img data-cover-image src="https://covers.openlibrary.org/b/id/8065615-M.jpg?default=false" alt="Cover of Clean Code by Robert C. Martin" loading="lazy" width="240" height="360"></div><div class="book-info"><span class="book-genre">Technology</span><h3>Clean Code</h3><p>Robert C. Martin</p><strong>LKR 5,200</strong></div></article>
-                    <article class="book-card" data-book-category="business"><div class="book-cover cover-four"><span class="cover-fallback">The Psychology of Money</span><img data-cover-image src="https://covers.openlibrary.org/b/id/10389354-M.jpg?default=false" alt="Cover of The Psychology of Money by Morgan Housel" loading="lazy" width="240" height="360"></div><div class="book-info"><span class="book-genre">Business</span><h3>The Psychology of Money</h3><p>Morgan Housel</p><strong>LKR 3,600</strong></div></article>
-                    <article class="book-card" data-book-category="personal-development"><div class="book-cover cover-five"><span class="cover-fallback">Atomic Habits</span><img data-cover-image src="https://covers.openlibrary.org/b/id/12539702-M.jpg?default=false" alt="Cover of Atomic Habits by James Clear" loading="lazy" width="240" height="360"></div><div class="book-info"><span class="book-genre">Personal Development</span><h3>Atomic Habits</h3><p>James Clear</p><strong>LKR 3,400</strong></div></article>
-                    <article class="book-card" data-book-category="science"><div class="book-cover cover-six"><span class="cover-fallback">A Brief History of Time</span><img data-cover-image src="https://covers.openlibrary.org/b/id/10432365-M.jpg?default=false" alt="Cover of A Brief History of Time by Stephen Hawking" loading="lazy" width="240" height="360"></div><div class="book-info"><span class="book-genre">Science</span><h3>A Brief History of Time</h3><p>Stephen Hawking</p><strong>LKR 3,100</strong></div></article>
-                    <article class="book-card" data-book-category="science"><div class="book-cover cover-seven"><span class="cover-fallback">Sapiens</span><img data-cover-image src="https://covers.openlibrary.org/b/id/8634250-M.jpg?default=false" alt="Cover of Sapiens by Yuval Noah Harari" loading="lazy" width="240" height="360"></div><div class="book-info"><span class="book-genre">Science</span><h3>Sapiens</h3><p>Yuval Noah Harari</p><strong>LKR 4,250</strong></div></article>
-                    <article class="book-card" data-book-category="education"><div class="book-cover cover-eight"><span class="cover-fallback">How to Read a Book</span><img data-cover-image src="https://covers.openlibrary.org/b/id/405381-M.jpg?default=false" alt="Cover of How to Read a Book by Mortimer J. Adler and Charles Van Doren" loading="lazy" width="240" height="360"></div><div class="book-info"><span class="book-genre">Education</span><h3>How to Read a Book</h3><p>Mortimer J. Adler &amp; Charles Van Doren</p><strong>LKR 2,950</strong></div></article>
+                    <article class="book-card" th:each="book, status : ${books}" th:attr="data-book-category=${#strings.toLowerCase(#strings.replace(book.category, ' ', '-'))}">
+                        <div class="book-cover" th:classappend="| cover-${status.count}|">
+                            <span class="cover-fallback" aria-hidden="true" th:text="${book.title}">Book cover</span>
+                            <img data-cover-image th:src="${book.coverUrl}" th:alt="|Cover of ${book.title} by ${book.author}|" loading="lazy" width="240" height="360">
+                        </div>
+                        <div class="book-info">
+                            <span class="book-genre" th:text="${book.category}">Category</span>
+                            <h3 th:text="${book.title}">Book title</h3>
+                            <p th:text="${book.author}">Author</p>
+                            <strong th:text="|LKR ${#numbers.formatDecimal(book.price, 1, 'COMMA', 0, 'POINT')}|">LKR 0</strong>
+                            <a class="book-detail-link" th:href="@{/books/{id}(id=${book.id})}" href="/books">View details <span aria-hidden="true">↗</span></a>
+                        </div>
+                    </article>
                 </div>
             </div>
         </section>
 
-        <section class="about section-space" id="about" aria-labelledby="about-title"><div class="container about-grid"><div class="about-art" aria-hidden="true"><span>P</span><span>N</span><small>FOR THE LOVE OF READING</small></div><div class="about-copy"><p class="eyebrow">A NOTE FROM PAGENEST</p><h2 id="about-title">There is always another story waiting.</h2><p>PageNest is a simple home for discovering books, whether you know exactly what you want to read or just feel like exploring. We believe a good reading journey starts with curiosity and a little room to wander.</p><a href="#featured">Browse the preview collection <span aria-hidden="true">↗</span></a></div></div></section>
+        <section class="about section-space" id="about" aria-labelledby="about-title"><div class="container about-grid"><div class="about-art" aria-hidden="true"><span>P</span><span>N</span><small>FOR THE LOVE OF READING</small></div><div class="about-copy"><p class="eyebrow">A NOTE FROM PAGENEST</p><h2 id="about-title">There is always another story waiting.</h2><p>PageNest is a simple home for discovering books, whether you know exactly what you want to read or just feel like exploring. We believe a good reading journey starts with curiosity and a little room to wander.</p><a th:href="@{/books}" href="/books">Browse the collection <span aria-hidden="true">↗</span></a></div></div></section>
     </main>
 
-    <footer class="site-footer"><div class="container footer-main"><div><a class="brand" href="#home"><span class="brand-icon" aria-hidden="true">✳</span>PageNest<span class="brand-dot">.</span></a><p>Books worth discovering.</p></div><nav aria-label="Footer navigation"><a href="#home">Home</a><a href="#categories">Categories</a><a href="#featured">Discover Books</a><a href="#about">About</a></nav></div><div class="container footer-bottom"><span>© 2026 PageNest. An SE1020 project.</span><span>Book covers via <a href="https://openlibrary.org/" target="_blank" rel="noopener noreferrer">Open Library <span class="sr-only">(opens in a new tab)</span></a>.</span></div></footer>
+    <footer class="site-footer"><div class="container footer-main"><div><a class="brand" href="#home"><span class="brand-icon" aria-hidden="true">✳</span>PageNest<span class="brand-dot">.</span></a><p>Books worth discovering.</p></div><nav aria-label="Footer navigation"><a href="#home">Home</a><a href="#categories">Categories</a><a th:href="@{/books}" href="/books">Discover Books</a><a href="#about">About</a></nav></div><div class="container footer-bottom"><span>© 2026 PageNest. An SE1020 project.</span><span>Book covers via <a href="https://openlibrary.org/" target="_blank" rel="noopener noreferrer">Open Library <span class="sr-only">(opens in a new tab)</span></a>.</span></div></footer>
 </body>
 </html>

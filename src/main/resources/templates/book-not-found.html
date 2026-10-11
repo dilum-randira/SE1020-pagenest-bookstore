@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#193d32">
+    <title>Book Not Found | PageNest</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <script defer th:src="@{/js/app.js}" src="/js/app.js"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header"><div class="container header-inner"><a class="brand" th:href="@{/}" href="/" aria-label="PageNest homepage"><span class="brand-icon" aria-hidden="true">✳</span>PageNest<span class="brand-dot">.</span></a><button class="menu-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Open menu"><span></span><span></span><span></span></button><nav class="primary-navigation" id="primary-navigation" aria-label="Primary navigation"><a th:href="@{/}" href="/">Home</a><a th:href="@{/books}" href="/books">Discover Books</a><a th:href="@{/#about}" href="/#about">About</a><span class="coming-soon" aria-label="Login is coming soon">Login <small>Coming soon</small></span></nav></div></header>
+    <main id="main-content" class="not-found-main"><div class="container"><p class="eyebrow">PAGE NOT FOUND · 404</p><h1>That book isn't on this shelf.</h1><p>It may have moved, or the book number may be incorrect. You can return to the collection and keep exploring.</p><a class="primary-cta" th:href="@{/books}" href="/books">Back to Collection <span aria-hidden="true">↗</span></a></div></main>
+    <footer class="site-footer"><div class="container footer-main"><div><a class="brand" th:href="@{/}" href="/"><span class="brand-icon" aria-hidden="true">✳</span>PageNest<span class="brand-dot">.</span></a><p>Books worth discovering.</p></div><nav aria-label="Footer navigation"><a th:href="@{/}" href="/">Home</a><a th:href="@{/books}" href="/books">Discover Books</a><a th:href="@{/#about}" href="/#about">About</a></nav></div><div class="container footer-bottom"><span>© 2026 PageNest. An SE1020 project.</span></div></footer>
+</body>
+</html>

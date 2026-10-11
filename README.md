@@ -1,6 +1,6 @@
 # PageNest
 
-PageNest is an Online Bookstore Management System developed as an individual SE1020 university OOP project. This first milestone provides a minimal Spring Boot web application and a working homepage.
+PageNest is an Online Bookstore Management System developed as an individual SE1020 university OOP project. It currently has a public landing page, a searchable book collection, and individual book detail pages.
 
 ## Technology stack
 
@@ -48,5 +48,11 @@ Then open <http://localhost:8080> in a web browser.
 ## Current functionality
 
 - Starts as a Spring Boot web application on port 8080.
-- Serves a basic Thymeleaf homepage at `/`.
-- Includes folders for future controllers, models, services, repositories, static assets, templates, and text-file data.
+- Serves a responsive Thymeleaf homepage at `/`.
+- Lists eight sample books at `/books`, with title/author search, category filtering, and name/price sorting.
+- Shows book details at `/books/{id}` and a friendly 404 page for unknown IDs.
+- Uses one in-memory sample collection in `BookService` for the homepage, catalog, and detail pages.
+
+The book data, stock numbers, and LKR prices are examples for this project, not live store inventory. Text-file storage and admin editing are planned for later milestones.
+
+Run the tests with `./mvnw test` on macOS/Linux or `.\mvnw.cmd test` on Windows.
