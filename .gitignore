@@ -1,6 +1,9 @@
 # Maven build output
 target/
 
+# Live inventory is created on first run and may later contain private data
+data/books.txt
+
 # IntelliJ IDEA
 .idea/
 .run/

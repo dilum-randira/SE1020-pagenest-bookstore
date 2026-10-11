@@ -1,20 +1,33 @@
 package lk.ac.sliit.se1020.pagenest.service;
 
 import java.math.BigDecimal;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import lk.ac.sliit.se1020.pagenest.model.Book;
+import lk.ac.sliit.se1020.pagenest.repository.BookFileRepository;
 
 @Service
 public class BookService {
 
-    // Sample data for Milestone 3. A later milestone will replace this with books.txt.
-    private final List<Book> books = List.of(
+    private final BookFileRepository repository;
+
+    public BookService(BookFileRepository repository) {
+        this.repository = repository;
+        repository.initializeIfMissing(demoBooks());
+    }
+
+    // Used only when books.txt does not exist yet. All normal reads come from the file.
+    private static List<Book> demoBooks() {
+        return List.of(
             new Book(1, "9780385534635", "The Night Circus", "Erin Morgenstern", "Fiction",
                     new BigDecimal("3250"), 7,
                     "A mysterious circus opens only at night, drawing visitors into a world of illusion, rivalry, and unexpected love.",
@@ -47,18 +60,23 @@ public class BookService {
                     new BigDecimal("2950"), 0,
                     "A guide to reading more actively and getting more from books of different kinds.",
                     "https://covers.openlibrary.org/b/id/405381-M.jpg?default=false")
-    );
+        );
+    }
 
     public List<Book> getAllBooks() {
-        return books;
+        return repository.readAll();
     }
 
     public Optional<Book> findById(long id) {
-        return books.stream().filter(book -> book.getId() == id).findFirst();
+        return getAllBooks().stream().filter(book -> book.getId() == id).findFirst();
+    }
+
+    public Optional<Book> getBookById(long id) {
+        return findById(id);
     }
 
     public List<String> getCategories() {
-        return books.stream().map(Book::getCategory).distinct().toList();
+        return getAllBooks().stream().map(Book::getCategory).distinct().toList();
     }
 
     public List<Book> findBooks(String query, String category, String sort) {
@@ -72,7 +90,7 @@ public class BookService {
             default -> Comparator.comparing(Book::getTitle, String.CASE_INSENSITIVE_ORDER);
         };
 
-        return books.stream()
+        return getAllBooks().stream()
                 .filter(book -> searchText.isEmpty()
                         || book.getTitle().toLowerCase(Locale.ROOT).contains(searchText)
                         || book.getAuthor().toLowerCase(Locale.ROOT).contains(searchText))
@@ -80,5 +98,109 @@ public class BookService {
                         || book.getCategory().equalsIgnoreCase(selectedCategory))
                 .sorted(order)
                 .toList();
+    }
+
+    public synchronized Book addBook(Book book) {
+        List<Book> books = new ArrayList<>(repository.readAll());
+        Map<String, String> errors = validateBook(book, null, books);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(errors.values().iterator().next());
+        }
+        long nextId = books.stream().mapToLong(Book::getId).max().orElse(0) + 1;
+        if (nextId <= 0) {
+            throw new IllegalStateException("No more book IDs are available.");
+        }
+        Book newBook = copyWithId(book, nextId);
+        books.add(newBook);
+        repository.saveAll(books);
+        return newBook;
+    }
+
+    public synchronized void updateBook(long id, Book changes) {
+        List<Book> books = new ArrayList<>(repository.readAll());
+        int index = indexOf(books, id);
+        if (index < 0) {
+            throw new IllegalArgumentException("The book no longer exists.");
+        }
+        Map<String, String> errors = validateBook(changes, id, books);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(errors.values().iterator().next());
+        }
+        books.set(index, copyWithId(changes, id));
+        repository.saveAll(books);
+    }
+
+    public synchronized void deleteBook(long id) {
+        List<Book> books = new ArrayList<>(repository.readAll());
+        int index = indexOf(books, id);
+        if (index < 0) {
+            throw new IllegalArgumentException("The book no longer exists.");
+        }
+        books.remove(index);
+        repository.saveAll(books);
+    }
+
+    public Map<String, String> validateBook(Book book, Long currentId) {
+        return validateBook(book, currentId, repository.readAll());
+    }
+
+    private Map<String, String> validateBook(Book book, Long currentId, List<Book> books) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        String isbn = book.getIsbn() == null ? "" : book.getIsbn().trim();
+        if (!isbn.matches("[0-9]{10}|[0-9]{13}")) {
+            errors.put("isbn", "ISBN must contain exactly 10 or 13 digits.");
+        } else if (books.stream().anyMatch(existing -> existing.getIsbn().equals(isbn)
+                && (currentId == null || existing.getId() != currentId))) {
+            errors.put("isbn", "Another book already uses this ISBN.");
+        }
+        required(book.getTitle(), "title", "Title", 150, errors);
+        required(book.getAuthor(), "author", "Author", 120, errors);
+        required(book.getCategory(), "category", "Category", 80, errors);
+        String description = book.getDescription() == null ? "" : book.getDescription().trim();
+        if (description.length() < 10 || description.length() > 1000) {
+            errors.put("description", "Description must be between 10 and 1000 characters.");
+        }
+        if (book.getPrice() == null || book.getPrice().signum() <= 0) {
+            errors.put("price", "Price must be greater than zero.");
+        }
+        if (book.getStock() < 0) {
+            errors.put("stock", "Stock cannot be negative.");
+        }
+        String coverUrl = book.getCoverUrl() == null ? "" : book.getCoverUrl().trim();
+        if (!coverUrl.isEmpty()) {
+            try {
+                URI uri = URI.create(coverUrl);
+                if (!("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
+                        || uri.getHost() == null || coverUrl.length() > 500) {
+                    errors.put("coverUrl", "Cover URL must be a valid http or https address (500 characters maximum).");
+                }
+            } catch (IllegalArgumentException exception) {
+                errors.put("coverUrl", "Cover URL must be a valid http or https address.");
+            }
+        }
+        return errors;
+    }
+
+    private void required(String value, String field, String label, int maxLength, Map<String, String> errors) {
+        if (value == null || value.isBlank()) {
+            errors.put(field, label + " is required.");
+        } else if (value.trim().length() > maxLength) {
+            errors.put(field, label + " must be " + maxLength + " characters or fewer.");
+        }
+    }
+
+    private int indexOf(List<Book> books, long id) {
+        for (int index = 0; index < books.size(); index++) {
+            if (books.get(index).getId() == id) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    private Book copyWithId(Book book, long id) {
+        return new Book(id, book.getIsbn().trim(), book.getTitle().trim(), book.getAuthor().trim(),
+                book.getCategory().trim(), book.getPrice(), book.getStock(),
+                book.getDescription().trim(), book.getCoverUrl() == null ? "" : book.getCoverUrl().trim());
     }
 }

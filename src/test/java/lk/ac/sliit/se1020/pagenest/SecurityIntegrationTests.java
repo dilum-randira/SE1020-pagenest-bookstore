@@ -22,7 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = {
         "PAGENEST_ADMIN_PASSWORD=test-only-admin-password",
-        "PAGENEST_CUSTOMER_PASSWORD=test-only-customer-password"
+        "PAGENEST_CUSTOMER_PASSWORD=test-only-customer-password",
+        "pagenest.books.file=target/test-data/${random.uuid}/books.txt"
 })
 @AutoConfigureMockMvc
 class SecurityIntegrationTests {
@@ -110,12 +111,10 @@ class SecurityIntegrationTests {
     }
 
     @Test
-    void oldPreviewRoutesAndBookWritesAreUnavailable() throws Exception {
+    void oldPreviewRoutesRemainUnavailable() throws Exception {
         mvc.perform(get("/preview/admin").with(user("admin").roles("ADMIN")))
                 .andExpect(status().isForbidden());
         mvc.perform(get("/preview/admin/books").with(user("admin").roles("ADMIN")))
                 .andExpect(status().isForbidden());
-        mvc.perform(post("/admin/books").with(user("admin").roles("ADMIN")).with(csrf()))
-                .andExpect(status().isMethodNotAllowed());
     }
 }

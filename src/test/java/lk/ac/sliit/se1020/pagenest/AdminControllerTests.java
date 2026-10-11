@@ -3,12 +3,16 @@ package lk.ac.sliit.se1020.pagenest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.ac.sliit.se1020.pagenest.controller.AdminController;
 import lk.ac.sliit.se1020.pagenest.model.Book;
+import lk.ac.sliit.se1020.pagenest.repository.BookFileRepository;
 import lk.ac.sliit.se1020.pagenest.service.BookService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.ui.ExtendedModelMap;
 
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,8 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class AdminControllerTests {
 
-    private final BookService bookService = new BookService();
-    private final AdminController controller = new AdminController(bookService);
+    @TempDir
+    Path directory;
+
+    private BookService bookService;
+    private AdminController controller;
+
+    @BeforeEach
+    void setUp() {
+        bookService = new BookService(new BookFileRepository(directory.resolve("books.txt")));
+        controller = new AdminController(bookService);
+    }
 
     @Test
     void dashboardUsesTheSharedSampleCollection() {

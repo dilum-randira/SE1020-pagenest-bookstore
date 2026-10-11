@@ -81,6 +81,10 @@ h2 { margin: 0; font-family: Georgia, serif; font-size: 24px; font-weight: 400; 
 .field small { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
 .field-error { display: block; min-height: 16px; margin-top: 4px; color: var(--red); font-size: 11px; }
 .field .is-invalid { border-color: var(--red); }
+.form-message { margin: 18px 26px 0; padding: 11px 13px; border: 1px solid; font-size: 12px; }
+.form-message p { margin: 0; }
+.form-message.error { border-color: #e6cfc9; background: #fcf1ee; color: var(--red); }
+.form-message.success { border-color: #cfe0cc; background: #f0f6ed; color: #356443; }
 .required { color: var(--red); }
 .table-wrap { width: 100%; overflow-x: auto; }
 .inventory-table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -90,6 +94,7 @@ h2 { margin: 0; font-family: Georgia, serif; font-size: 24px; font-weight: 400; 
 .inventory-table td { padding: 15px 12px; border-top: 1px solid #edf0ec; font-size: 11px; vertical-align: middle; }
 .table-book { display: flex; min-width: 180px; align-items: center; gap: 11px; }
 .table-book img { flex: none; width: 42px; height: 58px; }
+.table-cover-fallback { display: grid !important; flex: none; width: 42px; height: 58px; place-items: center; background: var(--green); color: white !important; font-family: Georgia, serif; font-size: 9px !important; }
 .isbn { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .price { color: var(--green); font-weight: 700; white-space: nowrap; }
 .row-actions { display: flex; gap: 11px; white-space: nowrap; }

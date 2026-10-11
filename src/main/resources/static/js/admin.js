@@ -1,16 +1,19 @@
-// These interactions are previews only. There are no book-writing requests.
 const deleteDialog = document.querySelector("#delete-dialog");
 
 if (deleteDialog) {
     const title = deleteDialog.querySelector("#delete-book-title");
     const cancel = deleteDialog.querySelector(".dialog-cancel");
     const close = deleteDialog.querySelector(".dialog-close");
+    const deleteForm = deleteDialog.querySelector("#delete-form");
+    const confirm = deleteForm.querySelector(".button-danger");
     let opener;
 
     document.querySelectorAll(".delete-trigger").forEach((button) => {
         button.addEventListener("click", () => {
             opener = button;
             title.textContent = button.dataset.bookTitle;
+            deleteForm.action = button.dataset.deleteUrl;
+            confirm.disabled = false;
             deleteDialog.showModal();
             cancel.focus();
         });
@@ -18,10 +21,13 @@ if (deleteDialog) {
 
     cancel.addEventListener("click", () => deleteDialog.close());
     close.addEventListener("click", () => deleteDialog.close());
-    deleteDialog.addEventListener("close", () => opener?.focus());
+    deleteDialog.addEventListener("close", () => {
+        confirm.disabled = true;
+        opener?.focus();
+    });
 }
 
-// Give optional field-level feedback while visitors explore the disabled form.
+// Browser feedback complements the server-side checks; the server makes the final decision.
 document.querySelectorAll(".book-form [required]").forEach((input) => {
     const error = document.querySelector(`#${input.id}-error`);
     const update = () => {

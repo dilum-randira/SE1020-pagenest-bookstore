@@ -10,9 +10,9 @@
 <div class="admin-shell">
     <div th:replace="~{admin/preview-nav :: navigation('dashboard')}"></div>
     <main id="main-content" class="admin-main">
-        <div class="preview-banner" role="note"><strong>Read-only inventory</strong><span>Signed-in admins can review books here. Save and delete will be enabled in a later milestone.</span></div>
+        <div class="preview-banner" role="note"><strong>Saved inventory</strong><span>These figures update when an admin adds, edits, or deletes a book.</span></div>
         <header class="page-header"><div><p class="eyebrow">INVENTORY / OVERVIEW</p><h1>Your books, at a glance.</h1><p class="lede">A clear view of the books currently on your shelf.</p></div><a class="button button-primary" th:href="@{/admin/books/new}">+ Add book</a></header>
-        <section aria-labelledby="summary-title"><div class="section-heading"><div><p class="eyebrow">AT A GLANCE</p><h2 id="summary-title">Inventory summary</h2></div><span class="section-meta" th:text="|${bookCount}-book demo collection|">Demo collection</span></div>
+        <section aria-labelledby="summary-title"><div class="section-heading"><div><p class="eyebrow">AT A GLANCE</p><h2 id="summary-title">Inventory summary</h2></div><span class="section-meta" th:text="|${bookCount}-book collection|">Collection</span></div>
             <div class="summary-grid">
                 <article class="summary-card"><span class="summary-label">Unique books</span><strong th:text="${bookCount}">8</strong><span class="summary-detail">Titles in the collection</span></article>
                 <article class="summary-card"><span class="summary-label">Stock units</span><strong th:text="${stockUnits}">42</strong><span class="summary-detail">Copies currently available</span></article>
@@ -20,10 +20,11 @@
                 <article class="summary-card"><span class="summary-label">Low-stock books</span><strong th:text="${lowStockCount}">0</strong><span class="summary-detail" th:text="|${lowStockThreshold} or fewer copies, including zero|">5 or fewer copies</span></article>
             </div>
         </section>
-        <section class="panel selected-section" aria-labelledby="selected-title"><div class="panel-heading"><div><p class="eyebrow">A CLOSER LOOK</p><h2 id="selected-title">Selected books</h2><p>First five titles in the sample collection.</p></div><a class="text-link" th:href="@{/admin/books}">Manage all books <span aria-hidden="true">↗</span></a></div>
-            <ul class="selected-list"><li th:each="book : ${selectedBooks}"><img th:src="${book.coverUrl}" src="" th:alt="|Cover of ${book.title}|" alt="Book cover" width="44" height="62"><div><strong th:text="${book.title}">Book title</strong><span th:text="${book.author}">Author</span></div><span class="stock-badge" th:classappend="${book.stock == 0 ? 'out' : (book.stock <= lowStockThreshold ? 'low' : 'available')}" th:text="${book.stock == 0 ? 'Out of stock' : (book.stock <= lowStockThreshold ? 'Low stock' : 'Available')}">Available</span><a th:href="@{/admin/books/{id}/edit(id=${book.id})}" th:aria-label="|Preview edit ${book.title}|">Edit <span aria-hidden="true">↗</span></a></li></ul>
+        <section class="panel selected-section" aria-labelledby="selected-title"><div class="panel-heading"><div><p class="eyebrow">A CLOSER LOOK</p><h2 id="selected-title">Selected books</h2><p>First five titles in the current collection.</p></div><a class="text-link" th:href="@{/admin/books}">Manage all books <span aria-hidden="true">↗</span></a></div>
+            <p class="empty-state" th:if="${#lists.isEmpty(selectedBooks)}">No books yet. Add the first book to begin tracking inventory.</p>
+            <ul class="selected-list" th:unless="${#lists.isEmpty(selectedBooks)}"><li th:each="book : ${selectedBooks}"><img th:if="${!#strings.isEmpty(book.coverUrl)}" th:src="${book.coverUrl}" src="" th:alt="|Cover of ${book.title}|" alt="Book cover" width="44" height="62"><span th:if="${#strings.isEmpty(book.coverUrl)}" class="table-cover-fallback" aria-hidden="true">Book</span><div><strong th:text="${book.title}">Book title</strong><span th:text="${book.author}">Author</span></div><span class="stock-badge" th:classappend="${book.stock == 0 ? 'out' : (book.stock <= lowStockThreshold ? 'low' : 'available')}" th:text="${book.stock == 0 ? 'Out of stock' : (book.stock <= lowStockThreshold ? 'Low stock' : 'Available')}">Available</span><a th:href="@{/admin/books/{id}/edit(id=${book.id})}" th:aria-label="|Edit ${book.title}|">Edit <span aria-hidden="true">↗</span></a></li></ul>
         </section>
-        <p class="end-note">Sample inventory · Permanent book management will be added in a later milestone.</p>
+        <p class="end-note">Changes are stored in data/books.txt.</p>
     </main>
 </div>
 </body>

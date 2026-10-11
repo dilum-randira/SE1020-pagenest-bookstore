@@ -5,7 +5,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(properties = {
         "PAGENEST_ADMIN_PASSWORD=test-only-admin-password",
-        "PAGENEST_CUSTOMER_PASSWORD=test-only-customer-password"
+        "PAGENEST_CUSTOMER_PASSWORD=test-only-customer-password",
+        "pagenest.books.file=target/test-data/${random.uuid}/books.txt"
 })
 class PageNestApplicationTests {
 

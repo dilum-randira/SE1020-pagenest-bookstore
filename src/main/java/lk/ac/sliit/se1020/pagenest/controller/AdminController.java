@@ -6,13 +6,19 @@ import lk.ac.sliit.se1020.pagenest.service.BookService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -63,9 +69,27 @@ public class AdminController {
     @GetMapping("/books/new")
     public String newBook(Model model) {
         model.addAttribute("book", new Book());
-        model.addAttribute("editing", false);
-        model.addAttribute("categories", bookService.getCategories());
+        prepareForm(model, false);
         return "admin/preview-book-form";
+    }
+
+    @PostMapping("/books")
+    public String addBook(@ModelAttribute("book") Book book, BindingResult binding,
+                          Model model, RedirectAttributes redirect) {
+        addValidationErrors(book, null, binding);
+        if (binding.hasErrors()) {
+            prepareForm(model, false);
+            return "admin/preview-book-form";
+        }
+        try {
+            bookService.addBook(book);
+            redirect.addFlashAttribute("success", "Book added successfully.");
+            return "redirect:/admin/books";
+        } catch (IllegalArgumentException | IllegalStateException | UncheckedIOException exception) {
+            prepareForm(model, false);
+            model.addAttribute("formError", exception.getMessage());
+            return "admin/preview-book-form";
+        }
     }
 
     @GetMapping("/books/{id}/edit")
@@ -81,8 +105,63 @@ public class AdminController {
             return "admin/preview-not-found";
         }
         model.addAttribute("book", book);
-        model.addAttribute("editing", true);
-        model.addAttribute("categories", bookService.getCategories());
+        prepareForm(model, true);
         return "admin/preview-book-form";
+    }
+
+    @PostMapping("/books/{id}/edit")
+    public String updateBook(@PathVariable long id, @ModelAttribute("book") Book book,
+                             BindingResult binding, Model model, RedirectAttributes redirect) {
+        book.setId(id);
+        addValidationErrors(book, id, binding);
+        if (binding.hasErrors()) {
+            prepareForm(model, true);
+            return "admin/preview-book-form";
+        }
+        try {
+            bookService.updateBook(id, book);
+            redirect.addFlashAttribute("success", "Book updated successfully.");
+            return "redirect:/admin/books";
+        } catch (IllegalArgumentException | IllegalStateException | UncheckedIOException exception) {
+            prepareForm(model, true);
+            model.addAttribute("formError", exception.getMessage());
+            return "admin/preview-book-form";
+        }
+    }
+
+    @PostMapping("/books/{id}/delete")
+    public String deleteBook(@PathVariable long id, RedirectAttributes redirect) {
+        try {
+            bookService.deleteBook(id);
+            redirect.addFlashAttribute("success", "Book deleted successfully.");
+        } catch (IllegalArgumentException | IllegalStateException | UncheckedIOException exception) {
+            redirect.addFlashAttribute("error", exception.getMessage());
+        }
+        return "redirect:/admin/books";
+    }
+
+    private void prepareForm(Model model, boolean editing) {
+        model.addAttribute("editing", editing);
+        try {
+            model.addAttribute("categories", bookService.getCategories());
+        } catch (IllegalStateException | UncheckedIOException exception) {
+            // Keep the entered form visible even if its category suggestions cannot be loaded.
+            model.addAttribute("categories", List.of());
+            if (!model.containsAttribute("formError")) {
+                model.addAttribute("formError", exception.getMessage());
+            }
+        }
+    }
+
+    private void addValidationErrors(Book book, Long currentId, BindingResult binding) {
+        try {
+            for (Map.Entry<String, String> error : bookService.validateBook(book, currentId).entrySet()) {
+                if (!binding.hasFieldErrors(error.getKey())) {
+                    binding.rejectValue(error.getKey(), "invalid", error.getValue());
+                }
+            }
+        } catch (IllegalStateException | UncheckedIOException exception) {
+            binding.reject("storage", exception.getMessage());
+        }
     }
 }

@@ -1,6 +1,6 @@
 # PageNest
 
-PageNest is an Online Bookstore Management System developed as an individual SE1020 university OOP project. It has a public book collection and a role-protected, read-only admin workspace.
+PageNest is an Online Bookstore Management System developed as an individual SE1020 university OOP project. It has a public book collection and a role-protected admin workspace for managing books.
 
 ## Technology stack
 
@@ -63,11 +63,18 @@ Then open <http://localhost:8080> in a web browser.
 - Starts as a Spring Boot web application on port 8080.
 - Serves a responsive Thymeleaf homepage at `/`.
 - Lists eight sample books at `/books`, with title/author search, category filtering, and name/price sorting.
+- Stores books in UTF-8 text at `data/books.txt`. On the first run only, the app creates that file with eight demo books. Existing files are loaded without reseeding.
 - Shows book details at `/books/{id}` and a friendly 404 page for unknown IDs.
-- Uses one in-memory sample collection in `BookService` for the homepage, catalog, and detail pages.
-- Provides a secured `/admin` workspace for ADMIN accounts, with an inventory summary, searchable table, add/edit form previews, and a non-destructive delete dialog.
+- Reads the same saved book collection for the homepage, catalog, detail pages, and admin screens.
+- Provides a secured `/admin` workspace for ADMIN accounts, with live inventory totals and working add, edit, and delete forms.
 - Uses `/login` for form login. ADMIN goes to `/admin`; CUSTOMER goes to `/books`. Logout uses a CSRF-protected POST and ends the session.
 
-The book data, stock numbers, and LKR prices are examples, not live store inventory. Only ADMIN can access `/admin/**`. The old `/preview/admin/**` URLs are removed. The admin forms are still read-only: there are no book save/delete endpoints or persistence. Protected CRUD and text-file storage are planned for later milestones.
+Only ADMIN can change books through `/admin/**`; CUSTOMER and anonymous visitors cannot call the write routes. The old `/preview/admin/**` URLs remain unavailable. The initial book data and LKR prices are examples; changes made by admins are saved immediately and appear on the public pages.
+
+## Book text file
+
+The storage location defaults to `data/books.txt`. Set the Spring property `pagenest.books.file` to use a different trusted local path (the automated tests do this under `target/test-data`). The path never comes from a browser form. The live file is ignored by Git because it may contain private data; back it up before manually editing or moving it.
+
+Each book is one tab-separated line after a header. Backslashes, tabs, and line breaks inside text fields are escaped as `\\`, `\t`, and `\n`; ordinary quotes remain readable. The repository rejects malformed records and duplicate IDs/ISBNs rather than silently replacing data. Saves write a temporary file in the same folder and then replace the old file atomically where supported.
 
 Run the tests with `./mvnw test` on macOS/Linux or `.\mvnw.cmd test` on Windows.
