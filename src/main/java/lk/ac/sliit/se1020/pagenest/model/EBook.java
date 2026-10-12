@@ -9,6 +9,7 @@ public class EBook extends Book {
         super(id, isbn, title, author, category, price, stock, description, coverUrl);
     }
 
+    // A Book reference calls this version when it holds an EBook.
     @Override
     public String getFormat() {
         return "E-Book";

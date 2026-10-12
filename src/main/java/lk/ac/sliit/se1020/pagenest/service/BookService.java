@@ -106,6 +106,7 @@ public class BookService {
         return addBook(book, book.getFormat());
     }
 
+    // Keep the read and save together for requests in this app instance.
     public synchronized Book addBook(Book book, String format) {
         List<Book> books = new ArrayList<>(repository.readAll());
         Map<String, String> errors = validateBook(book, null, books);
@@ -172,6 +173,7 @@ public class BookService {
     private Map<String, String> validateBook(Book book, Long currentId, List<Book> books) {
         Map<String, String> errors = new LinkedHashMap<>();
         String isbn = book.getIsbn() == null ? "" : book.getIsbn().trim();
+        // An edited book may keep its own ISBN, but another book cannot use it.
         if (!isbn.matches("[0-9]{10}|[0-9]{13}")) {
             errors.put("isbn", "ISBN must contain exactly 10 or 13 digits.");
         } else if (books.stream().anyMatch(existing -> existing.getIsbn().equals(isbn)
@@ -223,6 +225,7 @@ public class BookService {
         return -1;
     }
 
+    // A new object keeps the saved ID and the selected book type.
     private Book copyWithId(Book book, long id, String format) {
         String isbn = book.getIsbn().trim();
         String title = book.getTitle().trim();

@@ -9,6 +9,7 @@ public class PrintedBook extends Book {
         super(id, isbn, title, author, category, price, stock, description, coverUrl);
     }
 
+    // This type uses Book's shared fields and identifies printed copies.
     @Override
     public String getFormat() {
         return "Printed Book";

@@ -33,6 +33,7 @@ public class SecurityConfig {
         if (adminPassword.isBlank() || customerPassword.isBlank()) {
             throw new IllegalStateException("Set PAGENEST_ADMIN_PASSWORD and PAGENEST_CUSTOMER_PASSWORD before starting PageNest.");
         }
+        // The passwords are supplied when the app starts, then stored encoded in memory.
         return new InMemoryUserDetailsManager(
                 User.withUsername("admin").password(encoder.encode(adminPassword)).roles("ADMIN").build(),
                 User.withUsername("customer").password(encoder.encode(customerPassword)).roles("CUSTOMER").build());
@@ -44,6 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/books", "/books/*", "/login", "/access-denied",
                                 "/css/**", "/js/**", "/images/**").permitAll()
+                        // This also protects the admin POST routes, not just their pages.
                         .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .formLogin(form -> form.loginPage("/login").successHandler(this::onLoginSuccess).permitAll())

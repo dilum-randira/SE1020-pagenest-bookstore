@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class Book {
 
+    // Other classes use these details through methods instead of changing the fields directly.
     private long id;
     private String isbn;
     private String title;

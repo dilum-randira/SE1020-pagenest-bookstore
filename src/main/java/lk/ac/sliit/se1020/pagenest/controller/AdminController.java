@@ -78,6 +78,7 @@ public class AdminController {
     public String addBook(@ModelAttribute("book") Book book, BindingResult binding,
                           @RequestParam(defaultValue = "") String format,
                           Model model, RedirectAttributes redirect) {
+        // Format is separate from Book so the form can show the choice again after an error.
         model.addAttribute("selectedFormat", format);
         if (!bookService.isSupportedFormat(format)) {
             binding.reject("format", "Choose Printed Book or E-Book.");

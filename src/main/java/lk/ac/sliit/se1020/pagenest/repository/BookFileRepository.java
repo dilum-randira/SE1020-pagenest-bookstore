@@ -71,6 +71,7 @@ public class BookFileRepository {
             if (!HEADER_V1.equals(header) && !HEADER_V2.equals(header)) {
                 throw new IllegalStateException("The book data file has an unsupported or damaged header.");
             }
+            // Older nine-field records have no format, so they load as printed books.
             boolean legacy = HEADER_V1.equals(header);
             String line;
             int lineNumber = 1;
@@ -95,6 +96,7 @@ public class BookFileRepository {
         try {
             Files.createDirectories(file.getParent());
             temporary = writeTemporaryFile(books);
+            // Replace the saved file only after the whole new file has been written.
             try {
                 Files.move(temporary, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             } catch (AtomicMoveNotSupportedException exception) {
