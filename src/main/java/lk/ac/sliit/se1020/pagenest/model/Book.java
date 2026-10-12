@@ -56,4 +56,7 @@ public class Book {
 
     public String getCoverUrl() { return coverUrl; }
     public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
+
+    // Existing plain Book objects are treated as printed books for compatibility.
+    public String getFormat() { return "Printed Book"; }
 }

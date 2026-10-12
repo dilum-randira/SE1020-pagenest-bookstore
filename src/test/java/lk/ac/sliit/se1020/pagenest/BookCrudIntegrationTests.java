@@ -1,6 +1,8 @@
 package lk.ac.sliit.se1020.pagenest;
 
 import lk.ac.sliit.se1020.pagenest.model.Book;
+import lk.ac.sliit.se1020.pagenest.model.EBook;
+import lk.ac.sliit.se1020.pagenest.model.PrintedBook;
 import lk.ac.sliit.se1020.pagenest.service.BookService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,11 +44,13 @@ class BookCrudIntegrationTests {
                         .param("isbn", "9781234567890").param("title", "New Test Book")
                         .param("author", "Test Author").param("category", "Fiction")
                         .param("price", "1200").param("stock", "2")
-                        .param("description", "A test book for the catalog.").param("coverUrl", ""))
+                        .param("description", "A test book for the catalog.").param("coverUrl", "")
+                        .param("format", "Printed Book"))
                 .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/admin/books"));
         Book created = books.getAllBooks().stream().filter(book -> book.getIsbn().equals("9781234567890"))
                 .findFirst().orElseThrow();
         long id = created.getId();
+        assertInstanceOf(PrintedBook.class, created);
         mvc.perform(get("/books")).andExpect(content().string(org.hamcrest.Matchers.containsString("New Test Book")));
         mvc.perform(get("/books/" + id)).andExpect(status().isOk());
         mvc.perform(get("/admin").with(user("admin").roles("ADMIN")))
@@ -55,7 +60,8 @@ class BookCrudIntegrationTests {
                         .param("isbn", "9781234567890").param("title", "Updated Test Book")
                         .param("author", "Test Author").param("category", "Science")
                         .param("price", "1500").param("stock", "4")
-                        .param("description", "An updated test description.").param("coverUrl", ""))
+                        .param("description", "An updated test description.").param("coverUrl", "")
+                        .param("format", "Printed Book"))
                 .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/admin/books"));
         assertEquals(id, books.findById(id).orElseThrow().getId());
         mvc.perform(get("/books/" + id)).andExpect(content().string(org.hamcrest.Matchers.containsString("Updated Test Book")));
@@ -97,9 +103,57 @@ class BookCrudIntegrationTests {
                         .param("isbn", "9780385534635").param("title", "Kept Title")
                         .param("author", "Test Author").param("category", "Fiction")
                         .param("price", "0").param("stock", "-1")
-                        .param("description", "A valid test description.").param("coverUrl", "bad-url"))
+                        .param("description", "A valid test description.").param("coverUrl", "bad-url")
+                        .param("format", "E-Book"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrors("book", "isbn", "price", "stock", "coverUrl"))
+                .andExpect(model().attribute("selectedFormat", "E-Book"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Kept Title")));
+    }
+
+    @Test
+    void ebookFormatAppearsOnPublicPagesAndSurvivesAdminEdit() throws Exception {
+        mvc.perform(post("/admin/books").with(user("admin").roles("ADMIN")).with(csrf())
+                        .param("isbn", "9781234567892").param("title", "Digital Test Book")
+                        .param("author", "Test Author").param("category", "Science")
+                        .param("price", "900").param("stock", "3")
+                        .param("description", "A digital test description.").param("coverUrl", "")
+                        .param("format", "E-Book"))
+                .andExpect(status().is3xxRedirection());
+        Book created = books.getAllBooks().stream().filter(book -> book.getIsbn().equals("9781234567892"))
+                .findFirst().orElseThrow();
+        long id = created.getId();
+        assertInstanceOf(EBook.class, created);
+        mvc.perform(get("/books")).andExpect(content().string(org.hamcrest.Matchers.containsString("E-Book")));
+        mvc.perform(get("/books/" + id)).andExpect(content().string(org.hamcrest.Matchers.containsString("<dd>E-Book</dd>")));
+        mvc.perform(get("/admin/books/{id}/edit", id).with(user("admin").roles("ADMIN")))
+                .andExpect(model().attribute("selectedFormat", "E-Book"));
+
+        mvc.perform(post("/admin/books/{id}/edit", id).with(user("admin").roles("ADMIN")).with(csrf())
+                        .param("isbn", "9781234567892").param("title", "Revised Digital Book")
+                        .param("author", "Test Author").param("category", "Science")
+                        .param("price", "900").param("stock", "3")
+                        .param("description", "A revised digital description.").param("coverUrl", "")
+                        .param("format", "E-Book"))
+                .andExpect(status().is3xxRedirection());
+        assertInstanceOf(EBook.class, books.findById(id).orElseThrow());
+
+        mvc.perform(post("/admin/books/{id}/delete", id).with(user("admin").roles("ADMIN")).with(csrf()))
+                .andExpect(status().is3xxRedirection());
+        assertFalse(books.findById(id).isPresent());
+    }
+
+    @Test
+    void missingFormatKeepsEnteredBookAndDoesNotSave() throws Exception {
+        mvc.perform(post("/admin/books").with(user("admin").roles("ADMIN")).with(csrf())
+                        .param("isbn", "9781234567893").param("title", "Unsaved Title")
+                        .param("author", "Test Author").param("category", "Science")
+                        .param("price", "900").param("stock", "3")
+                        .param("description", "An unsaved test description.").param("coverUrl", ""))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("selectedFormat", ""))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Unsaved Title")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Choose Printed Book or E-Book.")));
+        assertFalse(books.getAllBooks().stream().anyMatch(book -> book.getIsbn().equals("9781234567893")));
     }
 }

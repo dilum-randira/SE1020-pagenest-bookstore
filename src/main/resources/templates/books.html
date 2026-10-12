@@ -57,7 +57,7 @@
                 <div class="book-grid" th:unless="${#lists.isEmpty(books)}">
                     <article class="book-card" th:each="book : ${books}">
                         <div class="book-cover"><span class="cover-fallback" aria-hidden="true" th:text="${book.title}">Book cover</span><img data-cover-image th:if="${!#strings.isEmpty(book.coverUrl)}" th:src="${book.coverUrl}" th:alt="|Cover of ${book.title} by ${book.author}|" loading="lazy" width="240" height="360"></div>
-                        <div class="book-info"><span class="book-genre" th:text="${book.category}">Category</span><h3 th:text="${book.title}">Book title</h3><p th:text="${book.author}">Author</p><strong th:text="|LKR ${#numbers.formatDecimal(book.price, 1, 'COMMA', 0, 'POINT')}|">LKR 0</strong><a class="book-detail-link" th:href="@{/books/{id}(id=${book.id})}" href="/books">View details <span aria-hidden="true">↗</span></a></div>
+                        <div class="book-info"><span class="book-genre" th:text="${book.category}">Category</span><h3 th:text="${book.title}">Book title</h3><p th:text="${book.author}">Author</p><p th:text="${book.format}">Printed Book</p><strong th:text="|LKR ${#numbers.formatDecimal(book.price, 1, 'COMMA', 0, 'POINT')}|">LKR 0</strong><a class="book-detail-link" th:href="@{/books/{id}(id=${book.id})}" href="/books">View details <span aria-hidden="true">↗</span></a></div>
                     </article>
                 </div>
             </div>

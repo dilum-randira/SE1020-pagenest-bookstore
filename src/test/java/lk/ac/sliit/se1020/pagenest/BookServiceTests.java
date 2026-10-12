@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.math.BigDecimal;
 import java.nio.file.Path;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import lk.ac.sliit.se1020.pagenest.model.Book;
+import lk.ac.sliit.se1020.pagenest.model.EBook;
+import lk.ac.sliit.se1020.pagenest.model.PrintedBook;
 import lk.ac.sliit.se1020.pagenest.repository.BookFileRepository;
 import lk.ac.sliit.se1020.pagenest.service.BookService;
 
@@ -57,7 +60,9 @@ class BookServiceTests {
                 new BigDecimal("1200"), 2, "A test description with a tab\tand a new line\nplus a quote \"here\".", "");
         long id = bookService.addBook(newBook).getId();
         assertEquals(9, id);
-        assertEquals(9, new BookService(new BookFileRepository(directory.resolve("books.txt"))).getAllBooks().size());
+        BookService afterAdd = new BookService(new BookFileRepository(directory.resolve("books.txt")));
+        assertEquals(9, afterAdd.getAllBooks().size());
+        assertInstanceOf(PrintedBook.class, afterAdd.findById(id).orElseThrow());
 
         newBook.setTitle("An Updated Shelf");
         bookService.updateBook(id, newBook);
@@ -86,6 +91,46 @@ class BookServiceTests {
         duplicate.setStock(1);
         assertThrows(IllegalArgumentException.class, () -> bookService.updateBook(999, duplicate));
         assertThrows(IllegalArgumentException.class, () -> bookService.deleteBook(999));
+        assertEquals(8, bookService.getAllBooks().size());
+    }
+
+    @Test
+    void bothFormatsSurviveEditsAndReloadsWithoutChangingIdsOrIsbns() {
+        Book form = new Book(0, "9781234567890", "Format Test", "Test Author", "Fiction",
+                new BigDecimal("1200"), 2, "A useful test description.", "");
+        Book electronic = bookService.addBook(form, "E-Book");
+        assertInstanceOf(EBook.class, electronic);
+
+        form.setTitle("Edited E-Book");
+        bookService.updateBook(electronic.getId(), form, "E-Book");
+        BookService reloaded = new BookService(new BookFileRepository(directory.resolve("books.txt")));
+        Book afterEdit = reloaded.findById(electronic.getId()).orElseThrow();
+        assertInstanceOf(EBook.class, afterEdit);
+        assertEquals("Edited E-Book", afterEdit.getTitle());
+        assertEquals(electronic.getIsbn(), afterEdit.getIsbn());
+
+        // Older callers passing a plain Book also retain the stored subtype.
+        reloaded.updateBook(electronic.getId(), form);
+        assertInstanceOf(EBook.class, reloaded.findById(electronic.getId()).orElseThrow());
+
+        reloaded.updateBook(electronic.getId(), form, "Printed Book");
+        Book converted = new BookService(new BookFileRepository(directory.resolve("books.txt")))
+                .findById(electronic.getId()).orElseThrow();
+        assertInstanceOf(PrintedBook.class, converted);
+        assertEquals(electronic.getId(), converted.getId());
+        assertEquals(electronic.getIsbn(), converted.getIsbn());
+
+        form.setIsbn("9781234567891");
+        Book second = bookService.addBook(form, "E-Book");
+        assertInstanceOf(EBook.class, new BookService(new BookFileRepository(directory.resolve("books.txt")))
+                .findById(second.getId()).orElseThrow());
+    }
+
+    @Test
+    void invalidFormatCannotBeSaved() {
+        Book form = new Book(0, "9781234567890", "Format Test", "Test Author", "Fiction",
+                new BigDecimal("1200"), 2, "A useful test description.", "");
+        assertThrows(IllegalArgumentException.class, () -> bookService.addBook(form, "Unknown"));
         assertEquals(8, bookService.getAllBooks().size());
     }
 }

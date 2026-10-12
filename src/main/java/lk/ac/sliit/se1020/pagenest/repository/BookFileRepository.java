@@ -1,6 +1,8 @@
 package lk.ac.sliit.se1020.pagenest.repository;
 
 import lk.ac.sliit.se1020.pagenest.model.Book;
+import lk.ac.sliit.se1020.pagenest.model.EBook;
+import lk.ac.sliit.se1020.pagenest.model.PrintedBook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -24,7 +26,8 @@ import java.util.Set;
 @Repository
 public class BookFileRepository {
 
-    private static final String HEADER = "# PageNest books v1: id, isbn, title, author, category, price, stock, description, coverUrl (tab-separated)";
+    private static final String HEADER_V1 = "# PageNest books v1: id, isbn, title, author, category, price, stock, description, coverUrl (tab-separated)";
+    private static final String HEADER_V2 = "# PageNest books v2: id, isbn, title, author, category, price, stock, description, coverUrl, format (tab-separated)";
     private final Path file;
 
     @Autowired
@@ -64,15 +67,17 @@ public class BookFileRepository {
         }
         List<Book> books = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            if (!HEADER.equals(reader.readLine())) {
+            String header = reader.readLine();
+            if (!HEADER_V1.equals(header) && !HEADER_V2.equals(header)) {
                 throw new IllegalStateException("The book data file has an unsupported or damaged header.");
             }
+            boolean legacy = HEADER_V1.equals(header);
             String line;
             int lineNumber = 1;
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
                 try {
-                    books.add(parse(line));
+                    books.add(parse(line, legacy));
                 } catch (RuntimeException exception) {
                     throw new IllegalStateException("Invalid book data on line " + lineNumber + ". No records were changed.", exception);
                 }
@@ -105,13 +110,13 @@ public class BookFileRepository {
     private Path writeTemporaryFile(List<Book> books) throws IOException {
         Path temporary = Files.createTempFile(file.getParent(), ".books-", ".tmp");
         try (BufferedWriter writer = Files.newBufferedWriter(temporary, StandardCharsets.UTF_8)) {
-            writer.write(HEADER);
+            writer.write(HEADER_V2);
             writer.newLine();
             for (Book book : books) {
                 writer.write(String.join("\t", Long.toString(book.getId()), escape(book.getIsbn()),
                         escape(book.getTitle()), escape(book.getAuthor()), escape(book.getCategory()),
                         book.getPrice().toPlainString(), Integer.toString(book.getStock()),
-                        escape(book.getDescription()), escape(book.getCoverUrl())));
+                        escape(book.getDescription()), escape(book.getCoverUrl()), book.getFormat()));
                 writer.newLine();
             }
             return temporary;
@@ -121,14 +126,26 @@ public class BookFileRepository {
         }
     }
 
-    private Book parse(String line) {
+    private Book parse(String line, boolean legacy) {
         String[] values = line.split("\t", -1);
-        if (values.length != 9) {
-            throw new IllegalArgumentException("Expected nine fields.");
+        if (values.length != (legacy ? 9 : 10)) {
+            throw new IllegalArgumentException("Incorrect number of fields.");
         }
-        Book book = new Book(Long.parseLong(values[0]), unescape(values[1]), unescape(values[2]),
-                unescape(values[3]), unescape(values[4]), new BigDecimal(values[5]),
-                Integer.parseInt(values[6]), unescape(values[7]), unescape(values[8]));
+        long id = Long.parseLong(values[0]);
+        String isbn = unescape(values[1]);
+        String title = unescape(values[2]);
+        String author = unescape(values[3]);
+        String category = unescape(values[4]);
+        BigDecimal price = new BigDecimal(values[5]);
+        int stock = Integer.parseInt(values[6]);
+        String description = unescape(values[7]);
+        String coverUrl = unescape(values[8]);
+        String format = legacy ? "Printed Book" : values[9];
+        Book book = switch (format) {
+            case "Printed Book" -> new PrintedBook(id, isbn, title, author, category, price, stock, description, coverUrl);
+            case "E-Book" -> new EBook(id, isbn, title, author, category, price, stock, description, coverUrl);
+            default -> throw new IllegalArgumentException("Unknown book format.");
+        };
         if (book.getId() <= 0 || book.getIsbn().isBlank() || book.getTitle().isBlank()
                 || book.getAuthor().isBlank() || book.getCategory().isBlank()
                 || book.getPrice().signum() <= 0 || book.getStock() < 0) {
@@ -142,7 +159,8 @@ public class BookFileRepository {
         Set<String> isbns = new HashSet<>();
         for (Book book : books) {
             if (book == null || book.getId() <= 0 || !ids.add(book.getId())
-                    || book.getIsbn() == null || !isbns.add(book.getIsbn())) {
+                    || book.getIsbn() == null || !isbns.add(book.getIsbn())
+                    || !(book.getFormat().equals("Printed Book") || book.getFormat().equals("E-Book"))) {
                 throw new IllegalStateException("The book data contains duplicate or invalid records. No records were changed.");
             }
         }

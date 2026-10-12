@@ -13,6 +13,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import lk.ac.sliit.se1020.pagenest.model.Book;
+import lk.ac.sliit.se1020.pagenest.model.EBook;
+import lk.ac.sliit.se1020.pagenest.model.PrintedBook;
 import lk.ac.sliit.se1020.pagenest.repository.BookFileRepository;
 
 @Service
@@ -101,6 +103,10 @@ public class BookService {
     }
 
     public synchronized Book addBook(Book book) {
+        return addBook(book, book.getFormat());
+    }
+
+    public synchronized Book addBook(Book book, String format) {
         List<Book> books = new ArrayList<>(repository.readAll());
         Map<String, String> errors = validateBook(book, null, books);
         if (!errors.isEmpty()) {
@@ -110,7 +116,7 @@ public class BookService {
         if (nextId <= 0) {
             throw new IllegalStateException("No more book IDs are available.");
         }
-        Book newBook = copyWithId(book, nextId);
+        Book newBook = copyWithId(book, nextId, format);
         books.add(newBook);
         repository.saveAll(books);
         return newBook;
@@ -122,11 +128,26 @@ public class BookService {
         if (index < 0) {
             throw new IllegalArgumentException("The book no longer exists.");
         }
+        // A plain Book from older code keeps the existing stored format on edit.
+        String format = changes.getClass() == Book.class ? books.get(index).getFormat() : changes.getFormat();
+        saveUpdatedBook(books, index, id, changes, format);
+    }
+
+    public synchronized void updateBook(long id, Book changes, String format) {
+        List<Book> books = new ArrayList<>(repository.readAll());
+        int index = indexOf(books, id);
+        if (index < 0) {
+            throw new IllegalArgumentException("The book no longer exists.");
+        }
+        saveUpdatedBook(books, index, id, changes, format);
+    }
+
+    private void saveUpdatedBook(List<Book> books, int index, long id, Book changes, String format) {
         Map<String, String> errors = validateBook(changes, id, books);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(errors.values().iterator().next());
         }
-        books.set(index, copyWithId(changes, id));
+        books.set(index, copyWithId(changes, id, format));
         repository.saveAll(books);
     }
 
@@ -142,6 +163,10 @@ public class BookService {
 
     public Map<String, String> validateBook(Book book, Long currentId) {
         return validateBook(book, currentId, repository.readAll());
+    }
+
+    public boolean isSupportedFormat(String format) {
+        return "Printed Book".equals(format) || "E-Book".equals(format);
     }
 
     private Map<String, String> validateBook(Book book, Long currentId, List<Book> books) {
@@ -198,9 +223,19 @@ public class BookService {
         return -1;
     }
 
-    private Book copyWithId(Book book, long id) {
-        return new Book(id, book.getIsbn().trim(), book.getTitle().trim(), book.getAuthor().trim(),
-                book.getCategory().trim(), book.getPrice(), book.getStock(),
-                book.getDescription().trim(), book.getCoverUrl() == null ? "" : book.getCoverUrl().trim());
+    private Book copyWithId(Book book, long id, String format) {
+        String isbn = book.getIsbn().trim();
+        String title = book.getTitle().trim();
+        String author = book.getAuthor().trim();
+        String category = book.getCategory().trim();
+        String description = book.getDescription().trim();
+        String coverUrl = book.getCoverUrl() == null ? "" : book.getCoverUrl().trim();
+        return switch (format == null ? "" : format) {
+            case "Printed Book" -> new PrintedBook(id, isbn, title, author, category,
+                    book.getPrice(), book.getStock(), description, coverUrl);
+            case "E-Book" -> new EBook(id, isbn, title, author, category,
+                    book.getPrice(), book.getStock(), description, coverUrl);
+            default -> throw new IllegalArgumentException("Choose Printed Book or E-Book.");
+        };
     }
 }

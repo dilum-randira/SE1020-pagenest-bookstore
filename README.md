@@ -66,6 +66,7 @@ Then open <http://localhost:8080> in a web browser.
 - Stores books in UTF-8 text at `data/books.txt`. On the first run only, the app creates that file with eight demo books. Existing files are loaded without reseeding.
 - Shows book details at `/books/{id}` and a friendly 404 page for unknown IDs.
 - Reads the same saved book collection for the homepage, catalog, detail pages, and admin screens.
+- Lets admins choose Printed Book or E-Book; the catalog and details show each book's saved format.
 - Provides a secured `/admin` workspace for ADMIN accounts, with live inventory totals and working add, edit, and delete forms.
 - Uses `/login` for form login. ADMIN goes to `/admin`; CUSTOMER goes to `/books`. Logout uses a CSRF-protected POST and ends the session.
 
@@ -76,5 +77,7 @@ Only ADMIN can change books through `/admin/**`; CUSTOMER and anonymous visitors
 The storage location defaults to `data/books.txt`. Set the Spring property `pagenest.books.file` to use a different trusted local path (the automated tests do this under `target/test-data`). The path never comes from a browser form. The live file is ignored by Git because it may contain private data; back it up before manually editing or moving it.
 
 Each book is one tab-separated line after a header. Backslashes, tabs, and line breaks inside text fields are escaped as `\\`, `\t`, and `\n`; ordinary quotes remain readable. The repository rejects malformed records and duplicate IDs/ISBNs rather than silently replacing data. Saves write a temporary file in the same folder and then replace the old file atomically where supported.
+
+The original v1 file has nine fields. PageNest still reads it unchanged and treats those books as printed books. New saves use v2, which adds a tenth `format` field (`Printed Book` or `E-Book`). A plain `Book` object supplied by older Java code is treated as a printed book; edits to a stored e-book keep its format unless an admin explicitly changes the selector.
 
 Run the tests with `./mvnw test` on macOS/Linux or `.\mvnw.cmd test` on Windows.

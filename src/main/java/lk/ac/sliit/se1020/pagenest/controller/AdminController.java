@@ -69,20 +69,26 @@ public class AdminController {
     @GetMapping("/books/new")
     public String newBook(Model model) {
         model.addAttribute("book", new Book());
+        model.addAttribute("selectedFormat", "");
         prepareForm(model, false);
         return "admin/preview-book-form";
     }
 
     @PostMapping("/books")
     public String addBook(@ModelAttribute("book") Book book, BindingResult binding,
+                          @RequestParam(defaultValue = "") String format,
                           Model model, RedirectAttributes redirect) {
+        model.addAttribute("selectedFormat", format);
+        if (!bookService.isSupportedFormat(format)) {
+            binding.reject("format", "Choose Printed Book or E-Book.");
+        }
         addValidationErrors(book, null, binding);
         if (binding.hasErrors()) {
             prepareForm(model, false);
             return "admin/preview-book-form";
         }
         try {
-            bookService.addBook(book);
+            bookService.addBook(book, format);
             redirect.addFlashAttribute("success", "Book added successfully.");
             return "redirect:/admin/books";
         } catch (IllegalArgumentException | IllegalStateException | UncheckedIOException exception) {
@@ -105,21 +111,27 @@ public class AdminController {
             return "admin/preview-not-found";
         }
         model.addAttribute("book", book);
+        model.addAttribute("selectedFormat", book.getFormat());
         prepareForm(model, true);
         return "admin/preview-book-form";
     }
 
     @PostMapping("/books/{id}/edit")
     public String updateBook(@PathVariable long id, @ModelAttribute("book") Book book,
-                             BindingResult binding, Model model, RedirectAttributes redirect) {
+                             BindingResult binding, @RequestParam(defaultValue = "") String format,
+                             Model model, RedirectAttributes redirect) {
         book.setId(id);
+        model.addAttribute("selectedFormat", format);
+        if (!bookService.isSupportedFormat(format)) {
+            binding.reject("format", "Choose Printed Book or E-Book.");
+        }
         addValidationErrors(book, id, binding);
         if (binding.hasErrors()) {
             prepareForm(model, true);
             return "admin/preview-book-form";
         }
         try {
-            bookService.updateBook(id, book);
+            bookService.updateBook(id, book, format);
             redirect.addFlashAttribute("success", "Book updated successfully.");
             return "redirect:/admin/books";
         } catch (IllegalArgumentException | IllegalStateException | UncheckedIOException exception) {
