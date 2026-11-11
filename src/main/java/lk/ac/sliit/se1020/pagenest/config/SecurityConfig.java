@@ -36,7 +36,7 @@ public class SecurityConfig {
         // The passwords are supplied when the app starts, then stored encoded in memory.
         return new InMemoryUserDetailsManager(
                 User.withUsername("admin").password(encoder.encode(adminPassword)).roles("ADMIN").build(),
-                User.withUsername("customer").password(encoder.encode(customerPassword)).roles("CUSTOMER").build());
+                User.withUsername("Customer").password(encoder.encode(customerPassword)).roles("CUSTOMER").build());
     }
 
     @Bean

@@ -77,9 +77,9 @@ class SecurityIntegrationTests {
 
     @Test
     void customerCanLogInButGets403OnAdminPages() throws Exception {
-        MockHttpSession session = (MockHttpSession) mvc.perform(formLogin().user("customer").password("test-only-customer-password"))
+        MockHttpSession session = (MockHttpSession) mvc.perform(formLogin().user("Customer").password("test-only-customer-password"))
                 .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/books"))
-                .andExpect(authenticated().withUsername("customer")).andReturn().getRequest().getSession(false);
+                .andExpect(authenticated().withUsername("Customer")).andReturn().getRequest().getSession(false);
         mvc.perform(get("/books").session(session)).andExpect(status().isOk());
         mvc.perform(get("/").session(session))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Admin Dashboard"))))

@@ -20,7 +20,7 @@ PageNest is an Online Bookstore Management System developed as an individual SE1
 
 ## Local development accounts
 
-The in-memory usernames are `admin` (ADMIN role) and `customer` (CUSTOMER role). Choose your own passwords; do not put them in source files, screenshots, commits, or shared run configurations. In PowerShell, set them for the current terminal session:
+The in-memory usernames are `admin` (ADMIN role) and `Customer` (CUSTOMER role). Choose your own passwords; do not put them in source files, screenshots, commits, or shared run configurations. In PowerShell, set them for the current terminal session:
 
 ```powershell
 $env:PAGENEST_ADMIN_PASSWORD = '<your private admin password>'
