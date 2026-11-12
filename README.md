@@ -1,5 +1,7 @@
 # PageNest
 
+<img width="1918" height="959" alt="image" src="https://github.com/user-attachments/assets/696762f0-c644-4ea9-b1fc-5ef2de601e91" />
+
 PageNest is an Online Bookstore Management System developed as an individual SE1020 university OOP project. It has a public book collection and a role-protected admin workspace for managing books.
 
 ## Technology stack
